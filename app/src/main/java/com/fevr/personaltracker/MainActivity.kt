@@ -55,20 +55,17 @@ fun MainScaffold() {
         BottomBarItems(
             selectedIcon = Icons.Rounded.Home,
             unselectedIcon = Icons.Outlined.Home,
-            route = "MoneyTracker",
-            selectedColor = Color.Green
+            route = "MoneyTracker"
         ),
         BottomBarItems(
             selectedIcon = Icons.Rounded.Star,
             unselectedIcon = Icons.Outlined.Star,
             route = "SleepTracker",
-            selectedColor = Color.Blue
         ),
         BottomBarItems(
             selectedIcon = Icons.Rounded.DateRange,
             unselectedIcon = Icons.Outlined.DateRange,
-            route = "HabitTracker",
-            selectedColor = Color.Red
+            route = "HabitTracker"
         )
     )
 
@@ -95,7 +92,7 @@ fun MainScaffold() {
                             Icon(
                                 imageVector = if (selectedItem == index) bottomBarItems.selectedIcon else bottomBarItems.unselectedIcon,
                                 contentDescription = bottomBarItems.route,
-                                tint = if (selectedItem == index) bottomBarItems.selectedColor else Color.DarkGray
+                                tint = if (selectedItem == index) bottomBarItems.selectedColor else bottomBarItems.unselectedColor
                             )
                         }
                     }
