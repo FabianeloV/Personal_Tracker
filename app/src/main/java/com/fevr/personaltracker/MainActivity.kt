@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,6 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -66,10 +69,10 @@ fun MainScaffold() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = Color.White) {
                 bottomItems.forEachIndexed { index, bottomBarItems ->
                     NavigationBarItem(
-                        modifier = Modifier.clip(RoundedCornerShape(100)),
+                        modifier = Modifier.clip(CircleShape),
                         selected = selectedItem == index,
                         onClick = { selectedItem = index },
                         icon = {
