@@ -15,7 +15,6 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -29,10 +28,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fevr.personaltracker.ui.theme.Info400
+import com.fevr.personaltracker.ui.theme.Info800
+import com.fevr.personaltracker.ui.theme.Success400
+import com.fevr.personaltracker.ui.theme.Success800
+import com.fevr.personaltracker.ui.theme.Warning400
+import com.fevr.personaltracker.ui.theme.Warning800
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,19 +59,22 @@ fun MainScaffold() {
 
     val bottomItems = listOf(
         BottomBarItems(
-            selectedIcon = Icons.Rounded.Home,
-            unselectedIcon = Icons.Outlined.Home,
-            route = "MoneyTracker"
+            selectedIcon = R.drawable.baseline_attach_money_24,
+            route = "MoneyTracker",
+            selectedColor = Success400,
+            unselectedColor = Success800
         ),
         BottomBarItems(
-            selectedIcon = Icons.Rounded.Star,
-            unselectedIcon = Icons.Outlined.Star,
+            selectedIcon = R.drawable.baseline_nights_stay_24,
             route = "SleepTracker",
+            selectedColor = Info400,
+            unselectedColor = Info800
         ),
         BottomBarItems(
-            selectedIcon = Icons.Rounded.DateRange,
-            unselectedIcon = Icons.Outlined.DateRange,
-            route = "HabitTracker"
+            selectedIcon = R.drawable.baseline_calendar_today_24,
+            route = "HabitTracker",
+            selectedColor = Warning400,
+            unselectedColor = Warning800
         )
     )
 
@@ -83,14 +92,14 @@ fun MainScaffold() {
                             onClick = { selectedItem = index
                                       navController.navigate(bottomBarItems.route)},
                             shape = CircleShape,
-                            elevation = if (selectedItem == index) FloatingActionButtonDefaults.elevation(15.dp) else FloatingActionButtonDefaults.elevation(1.dp),
+                            elevation = if (selectedItem == index) FloatingActionButtonDefaults.elevation(15.dp) else FloatingActionButtonDefaults.elevation(2.dp),
                             containerColor = Color.White,
                             modifier = Modifier
                                 .size(64.dp)
                                 .absoluteOffset(y = if (selectedItem == index) (-5).dp else 0.dp)
                         ) {
                             Icon(
-                                imageVector = if (selectedItem == index) bottomBarItems.selectedIcon else bottomBarItems.unselectedIcon,
+                                painter = painterResource(id = bottomBarItems.selectedIcon),
                                 contentDescription = bottomBarItems.route,
                                 tint = if (selectedItem == index) bottomBarItems.selectedColor else bottomBarItems.unselectedColor
                             )
