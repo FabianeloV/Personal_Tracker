@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fevr.personaltracker.screens.HabitTrackerScreen
+import com.fevr.personaltracker.screens.MoneyTrackerScreen
+import com.fevr.personaltracker.screens.SleepTrackerScreen
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info800
 import com.fevr.personaltracker.ui.theme.Success400
@@ -108,19 +111,13 @@ fun MainScaffold() {
             startDestination = "MoneyTracker",
             modifier = Modifier.padding(paddingValues = paddingValues)) {
             composable("MoneyTracker") {
-                MoneyTrackerScreen(
-                    navController
-                )
+                MoneyTrackerScreen()
             }
             composable("SleepTracker") {
-                SleepTrackerScreen(
-                    navController
-                )
+                SleepTrackerScreen()
             }
             composable("HabitTracker") {
-                HabitTrackerScreen(
-                    navController
-                )
+                HabitTrackerScreen()
             }
         }
     }
