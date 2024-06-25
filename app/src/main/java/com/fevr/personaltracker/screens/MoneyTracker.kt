@@ -2,12 +2,15 @@ package com.fevr.personaltracker.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.ui.theme.Primary400
+import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.ui.theme.Success500
@@ -49,19 +53,17 @@ fun MoneyTrackerScreen() {
     ) {
         BalanceCard(balance = balanceCounter.value!!)
 
-        TransactionCard()
-
-        TransactionCard()
-
-        TransactionCCard()
-
-        Button(onClick = { scope.launch {DataStore(context).incrementCounter(balanceKey)} }) {
+        for (i in 1..6) {
+            TransactionCard(state = i % 2 == 0)
+        }
+        /*
+        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey) } }) {
             Text(text = "subir")
         }
 
-        Button(onClick = { scope.launch {DataStore(context).decrementCounter(balanceKey)} }) {
+        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey) } }) {
             Text(text = "bajar")
-        }
+        }*/
     }
 }
 
@@ -80,31 +82,42 @@ fun BalanceCard(balance: Int) {
         Text(
             text = "$balance $",
             fontSize = 32.sp,
-            color = if (balance<0) Primary700 else Primary400,
+            color = if (balance < 0) Primary700 else Primary400,
             modifier = Modifier.padding(30.dp)
         )
     }
 }
 
-@Preview
 @Composable
-fun TransactionCard(){
-    Card {
-        Icon(imageVector = Icons.Outlined.Add, contentDescription = "Test")
+fun TransactionCard(state: Boolean) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 30.dp, end = 30.dp),
+        shape = CircleShape,
+        colors = CardColors(
+            containerColor = Color.White,
+            contentColor = if (state) Success500 else Primary500,
+            disabledContentColor = Color.White,
+            disabledContainerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 5.dp, bottom = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Icon(
+                imageVector = if (state) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                contentDescription = "Test"
+            )
 
-        Text(text = "Deposito")
+            Text(text = "Deposito")
 
-        Text(text = "100", color = Success500)
-    }
-}
-
-@Composable
-fun TransactionCCard(){
-    Card {
-        Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Test")
-
-        Text(text = "Deposito")
-
-        Text(text = "100", color = Primary700)
+            Text(text = "100")
+        }
     }
 }
