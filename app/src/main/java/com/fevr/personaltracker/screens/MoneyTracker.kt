@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -25,11 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.ui.theme.Primary400
 import com.fevr.personaltracker.ui.theme.Primary500
@@ -58,11 +55,11 @@ fun MoneyTrackerScreen() {
             TransactionCard(state = i % 2 == 0)
         }
 
-        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 2.5f) } }) {
+        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 2.55f) } }) {
             Text(text = "subir")
         }
 
-        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.3f) } }) {
+        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.35f) } }) {
             Text(text = "bajar")
         }
     }

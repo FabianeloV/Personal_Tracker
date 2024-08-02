@@ -78,4 +78,7 @@ dependencies {
     //DataStore preference
     implementation("androidx.datastore:datastore-preferences:1.1.0")
     implementation("androidx.datastore:datastore-android:1.1.1")
+
+    //Edge to edge (no top border)
+    implementation("androidx.activity:activity-ktx:1.9.1")
 }
