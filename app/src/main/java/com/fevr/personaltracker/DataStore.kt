@@ -17,22 +17,22 @@ class DataStore(private val context: Context) {
     }
 
     // To get the value of the balance
-    fun getBalance(balance: Preferences.Key<Int>): Flow<Int?> {
-        val getValue: Flow<Int?> = context.dataStore.data.map { preferences ->
-            preferences[balance] ?: 0
+    fun getBalance(balance: Preferences.Key<Float>): Flow<Float?> {
+        val getValue: Flow<Float?> = context.dataStore.data.map { preferences ->
+            preferences[balance]
         }
         return getValue
     }
 
-    suspend fun incrementCounter(balance: Preferences.Key<Int>) {
+    suspend fun incrementCounter(balance: Preferences.Key<Float>, value: Float) {
         context.dataStore.edit { Balance ->
-            Balance[balance] = Balance[balance]!! + 1
+            Balance[balance] = Balance[balance]!! + value
         }
     }
 
-    suspend fun decrementCounter(balance: Preferences.Key<Int>) {
+    suspend fun decrementCounter(balance: Preferences.Key<Float>, value: Float) {
         context.dataStore.edit { Balance ->
-            Balance[balance] = Balance[balance]!! - 1
+            Balance[balance] = Balance[balance]!! - value
         }
     }
 }

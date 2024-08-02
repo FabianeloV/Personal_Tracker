@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.ui.theme.Primary400
@@ -43,8 +44,8 @@ fun MoneyTrackerScreen() {
     val scope = rememberCoroutineScope()
 
     //Creamos el datastore del current balance con una clave unica
-    val balanceKey = intPreferencesKey("balance_counter")
-    val balanceCounter = DataStore(context).getBalance(balanceKey).collectAsState(initial = 0)
+    val balanceKey = floatPreferencesKey("balance_counter")
+    val balanceCounter = DataStore(context).getBalance(balanceKey).collectAsState(initial = 0.0f)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -53,22 +54,22 @@ fun MoneyTrackerScreen() {
     ) {
         BalanceCard(balance = balanceCounter.value!!)
 
-        for (i in 1..6) {
+        for (i in 1..3) {
             TransactionCard(state = i % 2 == 0)
         }
-        /*
-        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey) } }) {
+
+        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 2.5f) } }) {
             Text(text = "subir")
         }
 
-        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey) } }) {
+        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.3f) } }) {
             Text(text = "bajar")
-        }*/
+        }
     }
 }
 
 @Composable
-fun BalanceCard(balance: Int) {
+fun BalanceCard(balance: Float) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(10.dp),
         shape = CircleShape,
@@ -80,7 +81,7 @@ fun BalanceCard(balance: Int) {
         )
     ) {
         Text(
-            text = "$balance $",
+            text = "%.02f $".format(balance),
             fontSize = 32.sp,
             color = if (balance < 0) Primary700 else Primary400,
             modifier = Modifier.padding(30.dp)
