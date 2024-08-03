@@ -60,8 +60,8 @@ fun MainScaffold() {
         BottomBarItems(
             selectedIcon = R.drawable.baseline_attach_money_24,
             route = "MoneyTracker",
-            selectedColor = Success400,
-            unselectedColor = Success800
+            selectedColor = Info400,
+            unselectedColor = Info800
         ),
         BottomBarItems(
             selectedIcon = R.drawable.baseline_nights_stay_24,
@@ -72,8 +72,8 @@ fun MainScaffold() {
         BottomBarItems(
             selectedIcon = R.drawable.baseline_calendar_today_24,
             route = "HabitTracker",
-            selectedColor = Warning400,
-            unselectedColor = Warning800
+            selectedColor = Info400,
+            unselectedColor = Info800
         )
     )
 
@@ -94,8 +94,8 @@ fun MainScaffold() {
                             elevation = if (selectedItem == index) FloatingActionButtonDefaults.elevation(15.dp) else FloatingActionButtonDefaults.elevation(2.dp),
                             containerColor = Color.White,
                             modifier = Modifier
-                                .size(64.dp)
-                                .absoluteOffset(y = if (selectedItem == index) (-5).dp else 0.dp)
+                                .size(80.dp)
+                                .absoluteOffset(y = if (selectedItem == index) (-7).dp else 0.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = bottomBarItems.selectedIcon),
