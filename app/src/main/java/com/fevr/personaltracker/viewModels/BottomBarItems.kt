@@ -1,4 +1,4 @@
-package com.fevr.personaltracker
+package com.fevr.personaltracker.viewModels
 
 import androidx.compose.ui.graphics.Color
 import com.fevr.personaltracker.ui.theme.Primary400

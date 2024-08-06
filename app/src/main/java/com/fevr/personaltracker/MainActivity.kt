@@ -33,10 +33,7 @@ import com.fevr.personaltracker.screens.MoneyTrackerScreen
 import com.fevr.personaltracker.screens.SleepTrackerScreen
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info800
-import com.fevr.personaltracker.ui.theme.Success400
-import com.fevr.personaltracker.ui.theme.Success800
-import com.fevr.personaltracker.ui.theme.Warning400
-import com.fevr.personaltracker.ui.theme.Warning800
+import com.fevr.personaltracker.viewModels.BottomBarItems
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
