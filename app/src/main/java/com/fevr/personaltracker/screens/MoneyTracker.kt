@@ -27,8 +27,10 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,13 +53,16 @@ import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.ui.theme.Success500
 import com.fevr.personaltracker.ui.theme.Warning700
+import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoneyTrackerScreen() {
+fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel()) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val incomeOrExpenseState = remember { mutableStateOf(true) }
 
     //Creamos el datastore del current balance con una clave unica
     val balanceKey = floatPreferencesKey("balance_counter")
@@ -70,8 +75,14 @@ fun MoneyTrackerScreen() {
         color = Primary400,
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier.padding(top = 20.dp, start = 20.dp)) {
-            BalanceCard(balance = balanceCounter.value!!, 48, 20)
+        Row(
+            modifier = Modifier
+                .padding(top = 20.dp, start = 20.dp)
+                .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            BalanceCard(balance = balanceCounter.value, 48, 20)
+
+            IncomeOrExpenseSwitch(state = incomeOrExpenseState)
         }
         Surface(
             modifier = Modifier.padding(top = 150.dp),
@@ -79,9 +90,27 @@ fun MoneyTrackerScreen() {
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item { Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 4.55f) } }) { Text(text = "subir") }}
+                item {
+                    Button(onClick = {
+                        scope.launch {
+                            DataStore(context).incrementCounter(
+                                balanceKey,
+                                4.55f
+                            )
+                        }
+                    }) { Text(text = "subir") }
+                }
 
-                item { Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.35f) } }) { Text(text = "bajar") }}
+                item {
+                    Button(onClick = {
+                        scope.launch {
+                            DataStore(context).decrementCounter(
+                                balanceKey,
+                                1.35f
+                            )
+                        }
+                    }) { Text(text = "bajar") }
+                }
 
                 for (i in 0..16) {
                     item {
@@ -96,10 +125,26 @@ fun MoneyTrackerScreen() {
         if (showBottomSheet) {
             ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
                 // Sheet content
-                TransactionKeyboard()
+                TransactionKeyboard(viewModel)
             }
         }
     }
+}
+
+@Composable
+fun IncomeOrExpenseSwitch(state: MutableState<Boolean>) {
+    Switch(
+        checked = state.value,
+        onCheckedChange = { state.value = it },
+        thumbContent = {
+            if (state.value) {
+                Text(text = "I")
+            } else {
+                Text(text = "E")
+            }
+        },
+        modifier = Modifier.padding(20.dp),
+    )
 }
 
 @Composable
@@ -178,19 +223,9 @@ fun AddTransactionButton(click: () -> Unit) {
 }
 
 @Composable
-fun TransactionKeyboard() {
-    val filaUno = listOf("1", "2", "3")
-    val filaDos = listOf("4", "5", "6")
-    val filaTres = listOf("7", "8", "9")
-    val filaCuatro = listOf(".", "0", "C")
-
-    val numbers = listOf(filaUno, filaDos, filaTres, filaCuatro)
-
-    val value by remember { mutableStateOf("0.56") }
-
-
+fun TransactionKeyboard(viewModel: MoneyTrackerViewModel) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        numbers.forEach { list ->
+        viewModel.numbers.forEach { list ->
             NumberRow(numbers = list) {}
         }
     }
