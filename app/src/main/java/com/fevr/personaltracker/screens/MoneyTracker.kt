@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -50,6 +51,7 @@ import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.ui.theme.Success500
 import com.fevr.personaltracker.ui.theme.Warning700
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +79,10 @@ fun MoneyTrackerScreen() {
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                item { Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 4.55f) } }) { Text(text = "subir") }}
+
+                item { Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.35f) } }) { Text(text = "bajar") }}
+
                 for (i in 0..16) {
                     item {
                         TransactionCard(state = i % 2 == 0)
@@ -93,22 +99,11 @@ fun MoneyTrackerScreen() {
                 TransactionKeyboard()
             }
         }
-
-
-        /*
-        Button(onClick = { scope.launch { DataStore(context).incrementCounter(balanceKey, 2.55f) } }) {
-            Text(text = "subir")
-        }
-
-        Button(onClick = { scope.launch { DataStore(context).decrementCounter(balanceKey, 1.35f) } }) {
-            Text(text = "bajar")
-        } */
-
     }
 }
 
 @Composable
-fun BalanceCard(balance: Float, fontSize:Int, elevation: Int) {
+fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(elevation.dp),
         shape = CircleShape,
@@ -211,7 +206,7 @@ fun NumberRow(numbers: List<String>, click: (number: Int) -> Unit) {
     ) {
         numbers.forEach { number ->
             ElevatedButton(
-                onClick = {  },
+                onClick = { },
                 modifier = Modifier.size(60.dp)
             ) {
                 Text(text = number, fontSize = 24.sp, color = Info500)
