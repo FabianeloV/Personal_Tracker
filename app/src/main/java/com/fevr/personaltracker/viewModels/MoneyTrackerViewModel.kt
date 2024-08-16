@@ -1,9 +1,6 @@
 package com.fevr.personaltracker.viewModels
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountBox
 import androidx.lifecycle.ViewModel
-import com.fevr.personaltracker.ui.theme.Primary400
 
 class MoneyTrackerViewModel : ViewModel() {
     private val filaUno = listOf("1", "2", "3")
@@ -13,13 +10,12 @@ class MoneyTrackerViewModel : ViewModel() {
 
     val numbers = listOf(filaUno, filaDos, filaTres, filaCuatro)
 
-    val expenseList: List<ExpenseType> = listOf(
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Ropa", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Comida", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Renta", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Salida", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Servicios", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Gasolina", color = Primary400),
-        ExpenseType(icon = Icons.Outlined.AccountBox, type = "Otro", color = Primary400)
+    // { scope.launch { DataStore(context).incrementCounter(balanceKey, 4.55f) }
+    val expenses = mutableListOf(
+        Expenses(type = ExpenseType.Comida, description = "Compras varias", value = 15.40f),
+        Expenses(type = ExpenseType.Gas, description = "Gasolina moto", value = 4.20f),
+        Expenses(type = ExpenseType.Renta, description = "Renta agosto", value = 300.0f),
+        Expenses(type = ExpenseType.Salida, description = "Salida dannita", value = 8.50f),
+        Expenses(type = ExpenseType.Otro, description = "Bolsas de lunita", value = 2.50f),
     )
 }

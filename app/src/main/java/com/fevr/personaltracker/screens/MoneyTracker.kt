@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -46,13 +47,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
 import com.fevr.personaltracker.DataStore
+import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info500
 import com.fevr.personaltracker.ui.theme.Info700
 import com.fevr.personaltracker.ui.theme.Primary400
+import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.ui.theme.Success500
 import com.fevr.personaltracker.ui.theme.Warning700
+import com.fevr.personaltracker.viewModels.Expenses
 import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
 import kotlinx.coroutines.launch
 
@@ -80,9 +84,18 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
                 .padding(top = 20.dp, start = 20.dp)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            BalanceCard(balance = balanceCounter.value, 48, 20)
+            BalanceCard(balance = balanceCounter.value, 42, 20)
 
-            IncomeOrExpenseSwitch(state = incomeOrExpenseState)
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(15.dp)
+            ) {
+                IncomeOrExpenseText(state = incomeOrExpenseState)
+
+                IncomeOrExpenseSwitch(state = incomeOrExpenseState)
+            }
+
         }
         Surface(
             modifier = Modifier.padding(top = 150.dp),
@@ -90,35 +103,15 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item {
-                    Button(onClick = {
-                        scope.launch {
-                            DataStore(context).incrementCounter(
-                                balanceKey,
-                                4.55f
-                            )
+                if (incomeOrExpenseState.value){
+                } else {
+                    viewModel.expenses.forEach { expense ->
+                        item {
+                            TransactionCard(expense)
                         }
-                    }) { Text(text = "subir") }
-                }
-
-                item {
-                    Button(onClick = {
-                        scope.launch {
-                            DataStore(context).decrementCounter(
-                                balanceKey,
-                                1.35f
-                            )
-                        }
-                    }) { Text(text = "bajar") }
-                }
-
-                for (i in 0..16) {
-                    item {
-                        TransactionCard(state = i % 2 == 0)
                     }
                 }
             }
-
             AddTransactionButton { showBottomSheet = true }
         }
 
@@ -132,18 +125,45 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
 }
 
 @Composable
+fun IncomeOrExpenseText(state: MutableState<Boolean>) {
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(20.dp),
+        shape = CircleShape,
+        colors = CardColors(
+            containerColor = Color.White,
+            contentColor = Color.Red,
+            disabledContainerColor = Color.White,
+            disabledContentColor = Purple40
+        )
+    ) {
+        Text(
+            text = if (state.value) "Ingresos" else "Egresos",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Black,
+            color = if (state.value) Primary500 else Info400,
+            modifier = Modifier.padding(10.dp)
+        )
+    }
+}
+
+@Composable
 fun IncomeOrExpenseSwitch(state: MutableState<Boolean>) {
     Switch(
         checked = state.value,
         onCheckedChange = { state.value = it },
         thumbContent = {
             if (state.value) {
-                Text(text = "I")
+                Text(text = "I", color = Color.White)
             } else {
-                Text(text = "E")
+                Text(text = "E", color = Color.White)
             }
         },
-        modifier = Modifier.padding(20.dp),
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = Primary500,
+            checkedTrackColor = Color.White,
+            uncheckedThumbColor = Info400,
+            uncheckedTrackColor = Color.White,
+        )
     )
 }
 
@@ -170,7 +190,7 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
 }
 
 @Composable
-fun TransactionCard(state: Boolean) {
+fun TransactionCard(expense: Expenses) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -178,7 +198,7 @@ fun TransactionCard(state: Boolean) {
         shape = CircleShape,
         colors = CardColors(
             containerColor = Color.White,
-            contentColor = if (state) Success500 else Warning700,
+            contentColor = expense.type.color,
             disabledContentColor = Color.White,
             disabledContainerColor = Color.White
         ),
@@ -187,18 +207,18 @@ fun TransactionCard(state: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 5.dp, bottom = 5.dp),
+                .padding(top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                imageVector = if (state) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                contentDescription = "Test"
+                imageVector = expense.type.icon,
+                contentDescription = expense.description
             )
 
-            Text(text = "Deposito")
+            Text(text = expense.description)
 
-            Text(text = "100")
+            Text(text = "$ "+expense.value.toString())
         }
     }
 }
@@ -226,13 +246,13 @@ fun AddTransactionButton(click: () -> Unit) {
 fun TransactionKeyboard(viewModel: MoneyTrackerViewModel) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         viewModel.numbers.forEach { list ->
-            NumberRow(numbers = list) {}
+            NumberRow(numbers = list)
         }
     }
 }
 
 @Composable
-fun NumberRow(numbers: List<String>, click: (number: Int) -> Unit) {
+fun NumberRow(numbers: List<String>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
