@@ -21,33 +21,32 @@ import com.fevr.personaltracker.ui.theme.Warning400
 sealed class ExpenseType(
     var icon: ImageVector,
     var type: String,
-    var color: Color
 ) {
-    data object Ropa: ExpenseType(
-        icon = Icons.Outlined.Face, type = "Ropa", color = Primary400
+    data object Ropa : ExpenseType(
+        icon = Icons.Outlined.Face, type = "Ropa"
     )
 
-    data object Comida: ExpenseType(
-        icon = Icons.Outlined.ShoppingCart, type = "Comida", color = Info400
+    data object Comida : ExpenseType(
+        icon = Icons.Outlined.ShoppingCart, type = "Comida"
     )
 
-    data object Renta: ExpenseType(
-        icon = Icons.Outlined.Home, type = "Renta", color = Success400
+    data object Renta : ExpenseType(
+        icon = Icons.Outlined.Home, type = "Renta"
     )
 
-    data object Salida: ExpenseType(
-        icon = Icons.Outlined.Star, type = "Salida", color = Warning400
+    data object Salida : ExpenseType(
+        icon = Icons.Outlined.Star, type = "Salida"
     )
 
-    data object Servicios: ExpenseType(
-        icon = Icons.Outlined.Info, type = "Servicios", color = Primary500
+    data object Servicios : ExpenseType(
+        icon = Icons.Outlined.Info, type = "Servicios"
     )
 
-    data object Gas: ExpenseType(
-        icon = Icons.Outlined.Place, type = "Gasolina", color = Info500
+    data object Gas : ExpenseType(
+        icon = Icons.Outlined.Place, type = "Gasolina"
     )
 
-    data object Otro: ExpenseType(
-        icon = Icons.Outlined.Menu, type = "Otro", color = Success500
+    data object Otro : ExpenseType(
+        icon = Icons.Outlined.Menu, type = "Otro"
     )
 }

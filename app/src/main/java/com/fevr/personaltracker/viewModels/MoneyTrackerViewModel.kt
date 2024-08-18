@@ -2,10 +2,16 @@ package com.fevr.personaltracker.viewModels
 
 import android.app.Application
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.fevr.personaltracker.roomResources.Expense
@@ -20,30 +26,35 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
 
     val numbers = listOf(filaUno, filaDos, filaTres, filaCuatro)
 
-    /*
-    private val db =
-        Room.databaseBuilder(
-            context = getApplication<Application>().applicationContext,
-            ExpenseDatabase::class.java,
-            "expense_database"
-        ).build()
-
-    private val expenseDao = db.expenseDao()
-
-    val expenses: LiveData<List<Expense>> = expenseDao.getAllExpenses()
-
-    fun insertExpense(expense: Expense) = viewModelScope.launch {
-        expenseDao.insertExpense(expense)
+    //Funcion para recuperar la base de datos de los gastos
+    fun getDatabase(context: Context): ExpenseDatabase {
+        return Room.databaseBuilder(
+            context,
+            ExpenseDatabase::class.java, "expense-database"
+        ).fallbackToDestructiveMigration().build()
     }
-    */
 
+    //Funcion para insertar un gasto en la base de datos, se le debe pasar un gasto de tipo Expense y la base recuperada db
+    fun insertExpense(expense: Expense, db: ExpenseDatabase) = viewModelScope.launch {
+       db.expenseDao().insertExpense(expense)
+    }
+
+    fun getIcon(type:String):ImageVector{
+        return when (type){
+            "Ropa" -> Icons.Outlined.Face
+            "Comida" -> Icons.Outlined.ShoppingCart
+            "Renta" -> Icons.Outlined.Home
+            "Servicios" -> Icons.Outlined.Info
+            "Gas" -> Icons.Outlined.Place
+            "Salida" -> Icons.Outlined.Favorite
+            "Otro" -> Icons.Outlined.Star
+
+            else -> {
+                Icons.Outlined.Star
+            }
+        }
+    }
+
+    // { viewModel.insertExpense(Expense(type = ExpenseType.Ropa.type, description = "Compras", value = 15.60f), db) }
     // { scope.launch { DataStore(context).incrementCounter(balanceKey, 4.55f) }
-
-    /*val expenses = mutableListOf(
-        ExpensesStructure(type = ExpenseType.Comida, description = "Compras varias", value = 15.40f),
-        ExpensesStructure(type = ExpenseType.Gas, description = "Gasolina moto", value = 4.20f),
-        ExpensesStructure(type = ExpenseType.Renta, description = "Renta agosto", value = 300.0f),
-        ExpensesStructure(type = ExpenseType.Salida, description = "Salida dannita", value = 8.50f),
-        ExpensesStructure(type = ExpenseType.Otro, description = "Bolsas de lunita", value = 2.50f),
-    )*/
 }

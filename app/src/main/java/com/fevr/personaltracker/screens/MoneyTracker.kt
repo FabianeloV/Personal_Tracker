@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -36,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.room.Room
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info500
@@ -56,35 +53,27 @@ import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.roomResources.Expense
-import com.fevr.personaltracker.roomResources.ExpenseDatabase
-import com.fevr.personaltracker.roomResources.ExpenseType
+import com.fevr.personaltracker.ui.theme.Warning500
 import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(Application())) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
+    //Bottom sheet state y Income or expense state
+    var showBottomSheet by remember { mutableStateOf(false) }
     val incomeOrExpenseState = remember { mutableStateOf(true) }
 
     //Creamos el datastore del current balance con una clave unica
     val balanceKey = floatPreferencesKey("balance_counter")
     val balanceCounter = DataStore(context).getBalance(balanceKey).collectAsState(initial = 0.0f)
 
-    //Bottom sheet state
-    var showBottomSheet by remember { mutableStateOf(false) }
-
     //Lista de gastos
-    val db = Room.databaseBuilder(
-        context,
-        ExpenseDatabase::class.java, "expense-database"
-    ).fallbackToDestructiveMigration().build()
+    val db = viewModel.getDatabase(context)
+    val expenses by db.expenseDao().getAllExpenses().observeAsState(initial = emptyList())
 
-    val expenseDao = db.expenseDao()
-    val expenses by expenseDao.getAllExpenses().observeAsState(initial = emptyList())
-
+    //UI de aqui en adelante
     Surface(
         color = Primary400,
         modifier = Modifier.fillMaxSize()
@@ -113,27 +102,9 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-
-                item {
-                    Button(onClick = {
-                        scope.launch {
-                            expenseDao.insertExpense(
-                                Expense(
-                                    type = ExpenseType.Otro.type,
-                                    description = "Compras wdwhuhhuhuvarias",
-                                    value = 15.60f
-                                )
-                            )
-                        }
-                    }) {
-                        Text(text = "Add expense")
-                    }
-                }
-
-                if (incomeOrExpenseState.value) {
-                } else {
+                if (incomeOrExpenseState.value) { } else {
                     expenses.forEach { expense ->
-                        item { TransactionCard(expense) }
+                        item { TransactionCard(expense, viewModel) }
                     }
 
                 }
@@ -216,7 +187,7 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
 }
 
 @Composable
-fun TransactionCard(expense: Expense) {
+fun TransactionCard(expense: Expense, viewModel: MoneyTrackerViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -224,7 +195,7 @@ fun TransactionCard(expense: Expense) {
         shape = CircleShape,
         colors = CardColors(
             containerColor = Color.White,
-            contentColor = ExpenseType.Comida.color,
+            contentColor = Warning500,
             disabledContentColor = Color.White,
             disabledContainerColor = Color.White
         ),
@@ -238,7 +209,7 @@ fun TransactionCard(expense: Expense) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                imageVector = ExpenseType.Comida.icon,
+                imageVector = viewModel.getIcon(expense.type),
                 contentDescription = expense.description
             )
 

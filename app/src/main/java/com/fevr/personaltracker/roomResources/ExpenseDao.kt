@@ -6,7 +6,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.fevr.personaltracker.roomResources.Expense
 
 @Dao
 interface ExpenseDao {
@@ -19,4 +18,7 @@ interface ExpenseDao {
 
     @Query("SELECT * FROM user_expenses")
     fun getAllExpenses():LiveData<List<Expense>>
+
+    @Query("DELETE FROM user_expenses")
+    suspend fun deleteAll()
 }
