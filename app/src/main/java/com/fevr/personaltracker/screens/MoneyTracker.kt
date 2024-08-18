@@ -1,5 +1,6 @@
 package com.fevr.personaltracker.screens
 
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -34,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.room.Room
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info500
@@ -54,15 +55,15 @@ import com.fevr.personaltracker.ui.theme.Primary400
 import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
-import com.fevr.personaltracker.ui.theme.Success500
-import com.fevr.personaltracker.ui.theme.Warning700
-import com.fevr.personaltracker.viewModels.Expenses
+import com.fevr.personaltracker.roomResources.Expense
+import com.fevr.personaltracker.roomResources.ExpenseDatabase
+import com.fevr.personaltracker.roomResources.ExpenseType
 import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel()) {
+fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(Application())) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -74,6 +75,15 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
 
     //Bottom sheet state
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    //Lista de gastos
+    val db = Room.databaseBuilder(
+        context,
+        ExpenseDatabase::class.java, "expense-database"
+    ).fallbackToDestructiveMigration().build()
+
+    val expenseDao = db.expenseDao()
+    val expenses by expenseDao.getAllExpenses().observeAsState(initial = emptyList())
 
     Surface(
         color = Primary400,
@@ -103,23 +113,39 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                if (incomeOrExpenseState.value){
-                } else {
-                    viewModel.expenses.forEach { expense ->
-                        item {
-                            TransactionCard(expense)
+
+                item {
+                    Button(onClick = {
+                        scope.launch {
+                            expenseDao.insertExpense(
+                                Expense(
+                                    type = ExpenseType.Otro.type,
+                                    description = "Compras wdwhuhhuhuvarias",
+                                    value = 15.60f
+                                )
+                            )
                         }
+                    }) {
+                        Text(text = "Add expense")
                     }
                 }
-            }
-            AddTransactionButton { showBottomSheet = true }
-        }
 
-        if (showBottomSheet) {
-            ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
-                // Sheet content
-                TransactionKeyboard(viewModel)
+                if (incomeOrExpenseState.value) {
+                } else {
+                    expenses.forEach { expense ->
+                        item { TransactionCard(expense) }
+                    }
+
+                }
             }
+        }
+        AddTransactionButton { showBottomSheet = true }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+            // Sheet content
+            TransactionKeyboard(viewModel)
         }
     }
 }
@@ -190,7 +216,7 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
 }
 
 @Composable
-fun TransactionCard(expense: Expenses) {
+fun TransactionCard(expense: Expense) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -198,7 +224,7 @@ fun TransactionCard(expense: Expenses) {
         shape = CircleShape,
         colors = CardColors(
             containerColor = Color.White,
-            contentColor = expense.type.color,
+            contentColor = ExpenseType.Comida.color,
             disabledContentColor = Color.White,
             disabledContainerColor = Color.White
         ),
@@ -212,13 +238,13 @@ fun TransactionCard(expense: Expenses) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                imageVector = expense.type.icon,
+                imageVector = ExpenseType.Comida.icon,
                 contentDescription = expense.description
             )
 
             Text(text = expense.description)
 
-            Text(text = "$ "+expense.value.toString())
+            Text(text = "$ " + expense.value.toString())
         }
     }
 }

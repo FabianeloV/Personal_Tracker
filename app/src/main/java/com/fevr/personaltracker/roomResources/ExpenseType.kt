@@ -1,4 +1,4 @@
-package com.fevr.personaltracker.viewModels
+package com.fevr.personaltracker.roomResources
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Face
@@ -23,31 +23,31 @@ sealed class ExpenseType(
     var type: String,
     var color: Color
 ) {
-    data object Ropa:ExpenseType(
+    data object Ropa: ExpenseType(
         icon = Icons.Outlined.Face, type = "Ropa", color = Primary400
     )
 
-    data object Comida:ExpenseType(
+    data object Comida: ExpenseType(
         icon = Icons.Outlined.ShoppingCart, type = "Comida", color = Info400
     )
 
-    data object Renta:ExpenseType(
+    data object Renta: ExpenseType(
         icon = Icons.Outlined.Home, type = "Renta", color = Success400
     )
 
-    data object Salida:ExpenseType(
+    data object Salida: ExpenseType(
         icon = Icons.Outlined.Star, type = "Salida", color = Warning400
     )
 
-    data object Servicios:ExpenseType(
+    data object Servicios: ExpenseType(
         icon = Icons.Outlined.Info, type = "Servicios", color = Primary500
     )
 
-    data object Gas:ExpenseType(
+    data object Gas: ExpenseType(
         icon = Icons.Outlined.Place, type = "Gasolina", color = Info500
     )
 
-    data object Otro:ExpenseType(
+    data object Otro: ExpenseType(
         icon = Icons.Outlined.Menu, type = "Otro", color = Success500
     )
 }
