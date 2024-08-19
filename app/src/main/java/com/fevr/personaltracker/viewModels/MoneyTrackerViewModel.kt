@@ -11,20 +11,22 @@ import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
+import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.roomResources.Expense
 import com.fevr.personaltracker.roomResources.ExpenseDatabase
+import com.fevr.personaltracker.roomResources.ExpenseType
 import kotlinx.coroutines.launch
 
 class MoneyTrackerViewModel(application: Application) : AndroidViewModel(application) {
     private val filaUno = listOf("1", "2", "3")
     private val filaDos = listOf("4", "5", "6")
     private val filaTres = listOf("7", "8", "9")
-    private val filaCuatro = listOf(".", "0", "C")
 
-    val numbers = listOf(filaUno, filaDos, filaTres, filaCuatro)
+    val numbers = listOf(filaUno, filaDos, filaTres)
 
     //Funcion para recuperar la base de datos de los gastos
     fun getDatabase(context: Context): ExpenseDatabase {
@@ -34,9 +36,23 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
         ).fallbackToDestructiveMigration().build()
     }
 
+    val expensesType = listOf(
+        ExpenseType.Ropa,
+        ExpenseType.Comida,
+        ExpenseType.Renta,
+        ExpenseType.Salida,
+        ExpenseType.Servicios,
+        ExpenseType.Gas,
+        ExpenseType.Otro
+    )
+
     //Funcion para insertar un gasto en la base de datos, se le debe pasar un gasto de tipo Expense y la base recuperada db
     fun insertExpense(expense: Expense, db: ExpenseDatabase) = viewModelScope.launch {
        db.expenseDao().insertExpense(expense)
+    }
+
+    fun decreaseTotal(value:Float, context:Context) = viewModelScope.launch {
+        DataStore(context).decrementCounter(floatPreferencesKey("balance_counter"), value)
     }
 
     fun getIcon(type:String):ImageVector{

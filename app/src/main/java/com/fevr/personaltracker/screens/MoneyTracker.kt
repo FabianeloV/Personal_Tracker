@@ -1,10 +1,12 @@
 package com.fevr.personaltracker.screens
 
 import android.app.Application
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,21 +15,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -40,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,8 +63,12 @@ import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.roomResources.Expense
+import com.fevr.personaltracker.roomResources.ExpenseDatabase
+import com.fevr.personaltracker.roomResources.ExpenseType
 import com.fevr.personaltracker.ui.theme.Warning500
 import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +116,8 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             shadowElevation = 20.dp
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                if (incomeOrExpenseState.value) { } else {
+                if (incomeOrExpenseState.value) {
+                } else {
                     expenses.forEach { expense ->
                         item { TransactionCard(expense, viewModel) }
                     }
@@ -114,9 +129,14 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
     }
 
     if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true,
+            )
+        ) {
             // Sheet content
-            TransactionKeyboard(viewModel)
+            TransactionKeyboard(viewModel, db, context) { showBottomSheet = false }
         }
     }
 }
@@ -174,7 +194,8 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
             contentColor = Color.Red,
             disabledContainerColor = Color.White,
             disabledContentColor = Purple40
-        )
+        ),
+        modifier = Modifier.padding(top = 10.dp)
     ) {
         Text(
             text = "$%.02f".format(balance),
@@ -215,7 +236,10 @@ fun TransactionCard(expense: Expense, viewModel: MoneyTrackerViewModel) {
 
             Text(text = expense.description)
 
-            Text(text = "$ " + expense.value.toString())
+            Text(
+                text = NumberFormat.getCurrencyInstance(Locale.US)
+                    .format(expense.value)
+            )
         }
     }
 }
@@ -240,28 +264,207 @@ fun AddTransactionButton(click: () -> Unit) {
 }
 
 @Composable
-fun TransactionKeyboard(viewModel: MoneyTrackerViewModel) {
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        viewModel.numbers.forEach { list ->
-            NumberRow(numbers = list)
+fun TransactionKeyboard(
+    viewModel: MoneyTrackerViewModel,
+    db: ExpenseDatabase,
+    context: Context,
+    click: () -> Unit
+) {
+    //Value of transaction
+    val textFieldValue = remember { mutableStateOf("0") }
+
+    //Type of expense
+    val expenseType: MutableState<ExpenseType> = remember { mutableStateOf(ExpenseType.Ropa) }
+
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        //Text(text = if (textFieldValue.value.isNotEmpty()) "${textFieldValue.value.toDoubleOrNull()}" else "0")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ElevatedCard(
+                shape = CircleShape,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp)
+            ) {
+                Text(
+                    text = if (textFieldValue.value.isNotEmpty()) NumberFormat.getCurrencyInstance(
+                        Locale.US
+                    )
+                        .format(textFieldValue.value.toDoubleOrNull()) else "0",
+                    fontWeight = FontWeight.Black,
+                    fontSize = 40.sp,
+                    color = Primary400,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+            ExpenseDropdownMenu(expense = expenseType, viewModel = viewModel)
+        }
+
+
+        Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            Column {
+                viewModel.numbers.forEach { list ->
+                    NumberRow(numbers = list, textFieldValue)
+                }
+                LastRow(mutableState = textFieldValue)
+            }
+            DeleteAndSubmit(
+                mutableState = textFieldValue
+            ) {
+                viewModel.insertExpense(
+                    expense = Expense(
+                        type = expenseType.value.type,
+                        description = expenseType.value.type,
+                        value = textFieldValue.value.toFloat()
+                    ), db
+                )
+
+                viewModel.decreaseTotal(textFieldValue.value.toFloat(), context)
+
+                click()
+            }
         }
     }
 }
 
 @Composable
-fun NumberRow(numbers: List<String>) {
+fun NumberRow(numbers: List<String>, mutableState: MutableState<String>) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 5.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        modifier = Modifier.padding(bottom = 5.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         numbers.forEach { number ->
             ElevatedButton(
-                onClick = { },
-                modifier = Modifier.size(60.dp)
+                onClick = { mutableState.value += number },
+                modifier = Modifier.size(80.dp)
             ) {
-                Text(text = number, fontSize = 24.sp, color = Info500)
+                Text(text = number, fontSize = 32.sp, color = Info500)
+            }
+        }
+    }
+}
+
+@Composable
+fun LastRow(mutableState: MutableState<String>) {
+    Row(
+        modifier = Modifier
+            .padding(bottom = 5.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        ElevatedButton(
+            onClick = { mutableState.value = "0" },
+            modifier = Modifier.size(80.dp)
+        ) {
+            Text(text = "C", fontSize = 32.sp, color = Info700)
+        }
+
+        ElevatedButton(
+            onClick = { mutableState.value += "0" },
+            modifier = Modifier.size(80.dp)
+        ) {
+            Text(text = "0", fontSize = 32.sp, color = Info500)
+        }
+
+        ElevatedButton(
+            onClick = {
+                if (!(mutableState.value.contains("."))) {
+                    mutableState.value += "."
+                }
+            },
+            modifier = Modifier.size(80.dp)
+        ) {
+            Text(text = ".", fontSize = 32.sp, color = Info700)
+        }
+    }
+}
+
+@Composable
+fun DeleteAndSubmit(mutableState: MutableState<String>, click: () -> Unit) {
+    Column(verticalArrangement = Arrangement.SpaceBetween) {
+        ElevatedButton(
+            onClick = {
+                if (mutableState.value.isNotEmpty()) {
+                    mutableState.value = mutableState.value.dropLast(1) // Remove the last character
+                }
+            },
+            modifier = Modifier.size(80.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "delete",
+                tint = Primary700
+            )
+        }
+
+        Spacer(modifier = Modifier.padding(top = 90.dp))
+
+        ElevatedButton(
+            onClick = {
+                if (mutableState.value.isNotEmpty() && mutableState.value != "0") {
+                    click()
+                }
+            },
+            modifier = Modifier
+                .size(width = 80.dp, height = 160.dp)
+        ) {
+            Icon(imageVector = Icons.Filled.Check, contentDescription = "delete", tint = Primary500)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpenseDropdownMenu(expense: MutableState<ExpenseType>, viewModel: MoneyTrackerViewModel) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(expanded = isExpanded, onExpandedChange = { isExpanded = it }) {
+        OutlinedTextField(
+            value = expense.value.type,
+            textStyle = TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Black,
+                color = Info400
+            ),
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = expense.value.icon,
+                    contentDescription = null,
+                    tint = Info400
+                )
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .padding(start = 15.dp, end = 20.dp),
+            shape = CircleShape,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Info400,
+                unfocusedIndicatorColor = Info400,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            )
+        )
+        ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+            viewModel.expensesType.forEach { item ->
+                DropdownMenuItem(text = {
+                    Row {
+                        Icon(imageVector = item.icon, contentDescription = null, tint = Info400)
+
+                        Text(
+                            text = item.type,
+                            color = Info500,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                }, onClick = {
+                    expense.value.type = item.type
+                    expense.value.icon = item.icon
+                    isExpanded = false
+                })
             }
         }
     }
