@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -48,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -63,8 +66,11 @@ import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Purple40
 import com.fevr.personaltracker.roomResources.Expense
-import com.fevr.personaltracker.roomResources.ExpenseDatabase
+import com.fevr.personaltracker.roomResources.MoneyTrackerDatabase
 import com.fevr.personaltracker.roomResources.ExpenseType
+import com.fevr.personaltracker.roomResources.Income
+import com.fevr.personaltracker.ui.theme.Info600
+import com.fevr.personaltracker.ui.theme.Success500
 import com.fevr.personaltracker.ui.theme.Warning500
 import com.fevr.personaltracker.viewModels.MoneyTrackerViewModel
 import java.text.NumberFormat
@@ -86,6 +92,7 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
     //Lista de gastos
     val db = viewModel.getDatabase(context)
     val expenses by db.expenseDao().getAllExpenses().observeAsState(initial = emptyList())
+    val incomes by db.incomeDao().getAllExpenses().observeAsState(initial = emptyList())
 
     //UI de aqui en adelante
     Surface(
@@ -117,9 +124,26 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 if (incomeOrExpenseState.value) {
+                    incomes.forEach { income ->
+                        item {
+                            TransactionCard(
+                                text = income.description,
+                                value = income.value,
+                                icon = Icons.Filled.KeyboardArrowUp,
+                                color = Success500
+                            )
+                        }
+                    }
                 } else {
                     expenses.forEach { expense ->
-                        item { TransactionCard(expense, viewModel) }
+                        item {
+                            TransactionCard(
+                                expense.description,
+                                expense.value,
+                                viewModel.getIcon(expense.type),
+                                Warning500
+                            )
+                        }
                     }
 
                 }
@@ -136,7 +160,7 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             )
         ) {
             // Sheet content
-            TransactionKeyboard(viewModel, db, context) { showBottomSheet = false }
+            TransactionKeyboard(viewModel, db, context, incomeOrExpenseState) { showBottomSheet = false }
         }
     }
 }
@@ -208,7 +232,7 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
 }
 
 @Composable
-fun TransactionCard(expense: Expense, viewModel: MoneyTrackerViewModel) {
+fun TransactionCard(text: String, value: Float, icon: ImageVector, color: Color) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,7 +240,7 @@ fun TransactionCard(expense: Expense, viewModel: MoneyTrackerViewModel) {
         shape = CircleShape,
         colors = CardColors(
             containerColor = Color.White,
-            contentColor = Warning500,
+            contentColor = color,
             disabledContentColor = Color.White,
             disabledContainerColor = Color.White
         ),
@@ -230,15 +254,15 @@ fun TransactionCard(expense: Expense, viewModel: MoneyTrackerViewModel) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                imageVector = viewModel.getIcon(expense.type),
-                contentDescription = expense.description
+                imageVector = icon,
+                contentDescription = null
             )
 
-            Text(text = expense.description)
+            Text(text = text)
 
             Text(
                 text = NumberFormat.getCurrencyInstance(Locale.US)
-                    .format(expense.value)
+                    .format(value)
             )
         }
     }
@@ -266,9 +290,10 @@ fun AddTransactionButton(click: () -> Unit) {
 @Composable
 fun TransactionKeyboard(
     viewModel: MoneyTrackerViewModel,
-    db: ExpenseDatabase,
+    db: MoneyTrackerDatabase,
     context: Context,
-    click: () -> Unit
+    incomeOrExpense: MutableState<Boolean>,
+    click: () -> Unit,
 ) {
     //Value of transaction
     val textFieldValue = remember { mutableStateOf("0") }
@@ -276,8 +301,10 @@ fun TransactionKeyboard(
     //Type of expense
     val expenseType: MutableState<ExpenseType> = remember { mutableStateOf(ExpenseType.Ropa) }
 
+    //Description of income
+    val incomeDescription = remember { mutableStateOf("") }
+
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        //Text(text = if (textFieldValue.value.isNotEmpty()) "${textFieldValue.value.toDoubleOrNull()}" else "0")
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -300,7 +327,12 @@ fun TransactionKeyboard(
                     modifier = Modifier.padding(10.dp)
                 )
             }
-            ExpenseDropdownMenu(expense = expenseType, viewModel = viewModel)
+
+            if (incomeOrExpense.value) {
+                IncomeDescriptionField(description = incomeDescription)
+            } else {
+                ExpenseDropdownMenu(expense = expenseType, viewModel = viewModel)
+            }
         }
 
 
@@ -314,17 +346,32 @@ fun TransactionKeyboard(
             DeleteAndSubmit(
                 mutableState = textFieldValue
             ) {
-                viewModel.insertExpense(
-                    expense = Expense(
-                        type = expenseType.value.type,
-                        description = expenseType.value.type,
-                        value = textFieldValue.value.toFloat()
-                    ), db
-                )
+                if (incomeOrExpense.value) {
+                    viewModel.insertIncome(
+                        income = Income(
+                            description = incomeDescription.value,
+                            value = textFieldValue.value.toFloat()
+                        ), db
+                    )
 
-                viewModel.decreaseTotal(textFieldValue.value.toFloat(), context)
+                    viewModel.increaseTotal(textFieldValue.value.toFloat(), context)
 
-                click()
+                    click()
+
+                } else {
+                    viewModel.insertExpense(
+                        expense = Expense(
+                            type = expenseType.value.type,
+                            description = expenseType.value.type,
+                            value = textFieldValue.value.toFloat()
+                        ), db
+                    )
+
+                    viewModel.decreaseTotal(textFieldValue.value.toFloat(), context)
+
+                    click()
+                }
+
             }
         }
     }
@@ -446,7 +493,9 @@ fun ExpenseDropdownMenu(expense: MutableState<ExpenseType>, viewModel: MoneyTrac
                 unfocusedIndicatorColor = Info400,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent
-            )
+            ),
+            singleLine = true,
+            maxLines = 1
         )
         ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
             viewModel.expensesType.forEach { item ->
@@ -468,4 +517,34 @@ fun ExpenseDropdownMenu(expense: MutableState<ExpenseType>, viewModel: MoneyTrac
             }
         }
     }
+}
+
+@Composable
+fun IncomeDescriptionField(description: MutableState<String>) {
+    OutlinedTextField(
+        value = description.value,
+        textStyle = TextStyle(
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Black,
+            color = Info400
+        ),
+        onValueChange = { description.value = it },
+        label = {
+            Text(
+                text = "Descripción"
+            )
+        },
+        leadingIcon = { Icon(imageVector = Icons.Filled.Menu, contentDescription = null, tint = Info500)},
+        shape = CircleShape,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Info400,
+            unfocusedIndicatorColor = Info600,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
+        ),
+        modifier = Modifier.padding(start = 15.dp, end = 20.dp),
+        singleLine = true,
+        maxLines = 2,
+        minLines = 1,
+    )
 }

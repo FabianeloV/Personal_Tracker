@@ -17,8 +17,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.roomResources.Expense
-import com.fevr.personaltracker.roomResources.ExpenseDatabase
+import com.fevr.personaltracker.roomResources.MoneyTrackerDatabase
 import com.fevr.personaltracker.roomResources.ExpenseType
+import com.fevr.personaltracker.roomResources.Income
 import kotlinx.coroutines.launch
 
 class MoneyTrackerViewModel(application: Application) : AndroidViewModel(application) {
@@ -29,10 +30,10 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
     val numbers = listOf(filaUno, filaDos, filaTres)
 
     //Funcion para recuperar la base de datos de los gastos
-    fun getDatabase(context: Context): ExpenseDatabase {
+    fun getDatabase(context: Context): MoneyTrackerDatabase {
         return Room.databaseBuilder(
             context,
-            ExpenseDatabase::class.java, "expense-database"
+            MoneyTrackerDatabase::class.java, "expense-database"
         ).fallbackToDestructiveMigration().build()
     }
 
@@ -47,12 +48,20 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
     )
 
     //Funcion para insertar un gasto en la base de datos, se le debe pasar un gasto de tipo Expense y la base recuperada db
-    fun insertExpense(expense: Expense, db: ExpenseDatabase) = viewModelScope.launch {
+    fun insertExpense(expense: Expense, db: MoneyTrackerDatabase) = viewModelScope.launch {
        db.expenseDao().insertExpense(expense)
+    }
+
+    fun insertIncome(income: Income, db: MoneyTrackerDatabase) = viewModelScope.launch {
+        db.incomeDao().insertIncome(income)
     }
 
     fun decreaseTotal(value:Float, context:Context) = viewModelScope.launch {
         DataStore(context).decrementCounter(floatPreferencesKey("balance_counter"), value)
+    }
+
+    fun increaseTotal(value: Float, context: Context) = viewModelScope.launch {
+        DataStore(context).incrementCounter(floatPreferencesKey("balance_counter"), value)
     }
 
     fun getIcon(type:String):ImageVector{
@@ -70,7 +79,4 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
-
-    // { viewModel.insertExpense(Expense(type = ExpenseType.Ropa.type, description = "Compras", value = 15.60f), db) }
-    // { scope.launch { DataStore(context).incrementCounter(balanceKey, 4.55f) }
 }
