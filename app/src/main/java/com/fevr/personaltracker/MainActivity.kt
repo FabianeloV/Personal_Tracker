@@ -1,5 +1,6 @@
 package com.fevr.personaltracker
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,6 +34,7 @@ import com.fevr.personaltracker.screens.MoneyTrackerScreen
 import com.fevr.personaltracker.screens.SleepTrackerScreen
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info800
+import com.fevr.personaltracker.ui.theme.PersonalTrackerTheme
 import com.fevr.personaltracker.viewModels.BottomBarItems
 
 class MainActivity : ComponentActivity() {
@@ -40,11 +42,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MainScaffold()
+            PersonalTrackerTheme {
+                MainScaffold()
+            }
         }
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScaffold() {
     val navController = rememberNavController()
@@ -85,10 +90,14 @@ fun MainScaffold() {
                 ) {
                     bottomItems.forEachIndexed { index, bottomBarItems ->
                         FloatingActionButton(
-                            onClick = { selectedItem = index
-                                      navController.navigate(bottomBarItems.route)},
+                            onClick = {
+                                selectedItem = index
+                                navController.navigate(bottomBarItems.route)
+                            },
                             shape = CircleShape,
-                            elevation = if (selectedItem == index) FloatingActionButtonDefaults.elevation(15.dp) else FloatingActionButtonDefaults.elevation(2.dp),
+                            elevation = if (selectedItem == index) FloatingActionButtonDefaults.elevation(
+                                15.dp
+                            ) else FloatingActionButtonDefaults.elevation(2.dp),
                             containerColor = Color.White,
                             modifier = Modifier
                                 .size(80.dp)
@@ -103,12 +112,12 @@ fun MainScaffold() {
                     }
                 }
             }
-        },
-    ) { paddingValues ->
+        }
+    ) {
         NavHost(
             navController = navController,
             startDestination = "MoneyTracker",
-            modifier = Modifier.padding(paddingValues = paddingValues)) {
+        ) {
             composable("MoneyTracker") {
                 MoneyTrackerScreen()
             }

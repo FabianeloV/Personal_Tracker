@@ -94,6 +94,7 @@ dependencies {
 
     //Edge to edge (no top border)
     implementation("androidx.activity:activity-ktx:1.9.1")
+    implementation("androidx.activity:activity-compose:1.8.0")
 
     //ROOM
     implementation("androidx.room:room-runtime:2.6.1")
