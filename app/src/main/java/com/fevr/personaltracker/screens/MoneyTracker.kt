@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,6 +55,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -97,11 +100,13 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
     //UI de aqui en adelante
     Surface(
         color = Primary400,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 139.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(top = 20.dp, start = 20.dp)
+                .padding(top = 20.dp, start = 10.dp)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             BalanceCard(balance = balanceCounter.value, 42, 20)
@@ -109,7 +114,7 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(15.dp)
+                modifier = Modifier.padding(top = 18.dp, end = 10.dp)
             ) {
                 IncomeOrExpenseText(state = incomeOrExpenseState)
 
@@ -160,7 +165,9 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
             )
         ) {
             // Sheet content
-            TransactionKeyboard(viewModel, db, context, incomeOrExpenseState) { showBottomSheet = false }
+            TransactionKeyboard(viewModel, db, context, incomeOrExpenseState) {
+                showBottomSheet = false
+            }
         }
     }
 }
@@ -219,14 +226,14 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
             disabledContainerColor = Color.White,
             disabledContentColor = Purple40
         ),
-        modifier = Modifier.padding(top = 10.dp)
+        modifier = Modifier.padding(top = 20.dp).width(195.dp)
     ) {
         Text(
             text = "$%.02f".format(balance),
             fontSize = fontSize.sp,
             fontWeight = FontWeight.Black,
             color = if (balance < 0) Primary700 else Primary400,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(15.dp)
         )
     }
 }
@@ -236,7 +243,7 @@ fun TransactionCard(text: String, value: Float, icon: ImageVector, color: Color)
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp, top = 30.dp),
+            .padding(start = 30.dp, end = 30.dp, top = 20.dp, bottom = 5.dp),
         shape = CircleShape,
         colors = CardColors(
             containerColor = Color.White,
@@ -248,8 +255,7 @@ fun TransactionCard(text: String, value: Float, icon: ImageVector, color: Color)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp),
+                .fillMaxWidth().padding(top = 5.dp, bottom = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
@@ -258,7 +264,14 @@ fun TransactionCard(text: String, value: Float, icon: ImageVector, color: Color)
                 contentDescription = null
             )
 
-            Text(text = text)
+            Text(
+                text = text,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.width(200.dp),
+                textAlign = TextAlign.Center
+            )
 
             Text(
                 text = NumberFormat.getCurrencyInstance(Locale.US)
@@ -277,7 +290,7 @@ fun AddTransactionButton(click: () -> Unit) {
             elevation = FloatingActionButtonDefaults.elevation(5.dp),
             containerColor = Info700,
             contentColor = Color.White,
-            modifier = Modifier.padding(end = 35.dp, bottom = 15.dp)
+            modifier = Modifier.padding(end = 35.dp, bottom = 5.dp)
         ) {
             Icon(
                 imageVector = Icons.Outlined.Add,
@@ -310,11 +323,11 @@ fun TransactionKeyboard(
                 .fillMaxWidth()
                 .padding(bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             ElevatedCard(
                 shape = CircleShape,
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp)
+                modifier = Modifier.width(160.dp)
             ) {
                 Text(
                     text = if (textFieldValue.value.isNotEmpty()) NumberFormat.getCurrencyInstance(
@@ -349,7 +362,7 @@ fun TransactionKeyboard(
                 if (incomeOrExpense.value) {
                     viewModel.insertIncome(
                         income = Income(
-                            description = incomeDescription.value,
+                            description = incomeDescription.value.ifEmpty { "Ingreso" },
                             value = textFieldValue.value.toFloat()
                         ), db
                     )
@@ -486,7 +499,7 @@ fun ExpenseDropdownMenu(expense: MutableState<ExpenseType>, viewModel: MoneyTrac
             },
             modifier = Modifier
                 .menuAnchor()
-                .padding(start = 15.dp, end = 20.dp),
+                .width(170.dp),
             shape = CircleShape,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Info400,
@@ -529,12 +542,18 @@ fun IncomeDescriptionField(description: MutableState<String>) {
             color = Info400
         ),
         onValueChange = { description.value = it },
-        label = {
+        placeholder = {
             Text(
                 text = "Descripción"
             )
         },
-        leadingIcon = { Icon(imageVector = Icons.Filled.Menu, contentDescription = null, tint = Info500)},
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Menu,
+                contentDescription = null,
+                tint = Info500
+            )
+        },
         shape = CircleShape,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Info400,
@@ -542,9 +561,7 @@ fun IncomeDescriptionField(description: MutableState<String>) {
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         ),
-        modifier = Modifier.padding(start = 15.dp, end = 20.dp),
         singleLine = true,
-        maxLines = 2,
-        minLines = 1,
+        modifier = Modifier.width(170.dp)
     )
 }

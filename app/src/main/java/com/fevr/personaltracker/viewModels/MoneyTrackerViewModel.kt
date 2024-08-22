@@ -33,7 +33,7 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
     fun getDatabase(context: Context): MoneyTrackerDatabase {
         return Room.databaseBuilder(
             context,
-            MoneyTrackerDatabase::class.java, "expense-database"
+            MoneyTrackerDatabase::class.java, "app-database"
         ).fallbackToDestructiveMigration().build()
     }
 

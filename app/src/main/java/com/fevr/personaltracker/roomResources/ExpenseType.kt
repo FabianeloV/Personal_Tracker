@@ -8,8 +8,10 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 
+@Immutable
 sealed class ExpenseType(
     var icon: ImageVector,
     var type: String,

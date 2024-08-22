@@ -55,27 +55,21 @@ fun MainScaffold() {
     val navController = rememberNavController()
 
     var selectedItem by rememberSaveable {
-        mutableIntStateOf(0)
+        mutableIntStateOf(2)
     }
 
     val bottomItems = listOf(
         BottomBarItems(
             selectedIcon = R.drawable.baseline_attach_money_24,
-            route = "MoneyTracker",
-            selectedColor = Info400,
-            unselectedColor = Info800
+            route = "MoneyTracker"
         ),
         BottomBarItems(
             selectedIcon = R.drawable.baseline_nights_stay_24,
-            route = "SleepTracker",
-            selectedColor = Info400,
-            unselectedColor = Info800
+            route = "SleepTracker"
         ),
         BottomBarItems(
             selectedIcon = R.drawable.baseline_calendar_today_24,
-            route = "HabitTracker",
-            selectedColor = Info400,
-            unselectedColor = Info800
+            route = "HabitTracker"
         )
     )
 
@@ -116,7 +110,7 @@ fun MainScaffold() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "MoneyTracker",
+            startDestination = "HabitTracker",
         ) {
             composable("MoneyTracker") {
                 MoneyTrackerScreen()
