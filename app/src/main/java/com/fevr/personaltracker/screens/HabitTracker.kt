@@ -53,10 +53,10 @@ import com.fevr.personaltracker.ui.theme.Primary600
 import com.fevr.personaltracker.ui.theme.Primary700
 import com.fevr.personaltracker.ui.theme.Primary800
 import com.fevr.personaltracker.viewModels.HabitTrackerViewModel
-import androidx.compose.runtime.*
 import androidx.compose.ui.unit.sp
 import com.fevr.personaltracker.ui.theme.Primary500
 import com.fevr.personaltracker.ui.theme.Purple40
+import com.fevr.personaltracker.workManager.scheduleDayChangeWorker
 import java.time.LocalDate
 import java.util.Locale
 
@@ -102,25 +102,18 @@ fun HabitTrackerScreen(viewModel: HabitTrackerViewModel = HabitTrackerViewModel(
             shadowElevation = 20.dp,
             modifier = Modifier.padding(top = 150.dp)
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                DayCard{
-                    viewModel.insertActivity(db,
-                    ActivitiesToDo(description = "Se cambio el dia", state = false)
-                )}
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                DayCard()
 
                 LazyColumn(modifier = Modifier.padding(top = 20.dp)) {
                     activities.forEach { activity ->
                         item {
-                            ActivityCard(activity = activity, {
-                                viewModel.updateActivityState(
-                                    db,
-                                    ActivitiesToDo(
-                                        id = activity.id,
-                                        description = activity.description,
-                                        state = true
-                                    )
-                                )
-                            },
+                            ActivityCard(activity = activity,
+                                {
+                                    viewModel.updateActivityState(db, activity)
+
+                                    scheduleDayChangeWorker(context, activity)
+                                },
                                 {
                                     viewModel.deleteActivity(db, activity)
                                 }
@@ -229,7 +222,7 @@ fun ActivityCard(activity: ActivitiesToDo, check: () -> Unit, delete: () -> Unit
 }
 
 @Composable
-fun DayCard(action:()->Unit) {
+fun DayCard() {
     val currentDay by remember { mutableStateOf(LocalDate.now()) }
 
     ElevatedCard(
@@ -241,7 +234,7 @@ fun DayCard(action:()->Unit) {
             disabledContainerColor = Color.White,
             disabledContentColor = Purple40
         ),
-        modifier = Modifier.padding(top = 10.dp)
+        modifier = Modifier.padding(top = 7.dp)
     ) {
         Text(
             text = currentDay.dayOfWeek.getDisplayName(
@@ -254,22 +247,4 @@ fun DayCard(action:()->Unit) {
             modifier = Modifier.padding(10.dp)
         )
     }
-}
-
-@Composable
-fun rememberCurrentDay(): State<LocalDate> {
-    val currentDay = remember { mutableStateOf(LocalDate.now()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            val now = LocalDate.now()
-            if (currentDay.value != now) {
-                currentDay.value = now
-                // Trigger any action on day change here
-            }
-            // Check every hour if the day has changed
-            kotlinx.coroutines.delay(60 * 60 * 1000L)
-        }
-    }
-    return currentDay
 }

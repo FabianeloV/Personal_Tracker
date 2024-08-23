@@ -26,6 +26,10 @@ class HabitTrackerViewModel:ViewModel() {
     }
 
     fun updateActivityState(db: MoneyTrackerDatabase, activity: ActivitiesToDo)=viewModelScope.launch {
-        db.activitiesDao().update(activity)
+        db.activitiesDao().update(ActivitiesToDo(id = activity.id, description = activity.description, state = true))
+    }
+
+    fun updateActivityStateNight(db: MoneyTrackerDatabase, activity: ActivitiesToDo)=viewModelScope.launch {
+        db.activitiesDao().update(ActivitiesToDo(id = activity.id, description = activity.description, state = false))
     }
 }
