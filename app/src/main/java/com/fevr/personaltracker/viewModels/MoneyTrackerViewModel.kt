@@ -15,7 +15,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import com.fevr.personaltracker.DataStore
 import com.fevr.personaltracker.roomResources.Expense
 import com.fevr.personaltracker.roomResources.MoneyTrackerDatabase
 import com.fevr.personaltracker.roomResources.ExpenseType

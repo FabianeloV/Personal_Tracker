@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,7 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.floatPreferencesKey
-import com.fevr.personaltracker.DataStore
+import com.fevr.personaltracker.viewModels.DataStore
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info500
 import com.fevr.personaltracker.ui.theme.Info700
@@ -109,7 +110,7 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
                 .padding(top = 20.dp, start = 10.dp)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            BalanceCard(balance = balanceCounter.value, 42, 20)
+            BalanceCard(balance = balanceCounter.value, 40, 20)
 
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -226,7 +227,7 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
             disabledContainerColor = Color.White,
             disabledContentColor = Purple40
         ),
-        modifier = Modifier.padding(top = 20.dp).width(195.dp)
+        modifier = Modifier.padding(top = 20.dp).widthIn(max = 215.dp)
     ) {
         Text(
             text = "$%.02f".format(balance),
@@ -327,7 +328,7 @@ fun TransactionKeyboard(
         ) {
             ElevatedCard(
                 shape = CircleShape,
-                modifier = Modifier.width(160.dp)
+                modifier = Modifier.widthIn(max = 215.dp)
             ) {
                 Text(
                     text = if (textFieldValue.value.isNotEmpty()) NumberFormat.getCurrencyInstance(

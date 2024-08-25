@@ -1,4 +1,4 @@
-package com.fevr.personaltracker
+package com.fevr.personaltracker.viewModels
 
 import android.content.Context
 import androidx.datastore.core.DataStore

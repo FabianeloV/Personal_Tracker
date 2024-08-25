@@ -55,7 +55,7 @@ fun MainScaffold() {
     val navController = rememberNavController()
 
     var selectedItem by rememberSaveable {
-        mutableIntStateOf(2)
+        mutableIntStateOf(1)
     }
 
     val bottomItems = listOf(
@@ -110,7 +110,7 @@ fun MainScaffold() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "HabitTracker",
+            startDestination = "SleepTracker",
         ) {
             composable("MoneyTracker") {
                 MoneyTrackerScreen()

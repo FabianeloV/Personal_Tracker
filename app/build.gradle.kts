@@ -106,4 +106,8 @@ dependencies {
 
     //Kotlin workManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    //Charts and graphics
+    implementation ("com.github.tehras:charts:0.2.4-alpha")
+
 }
