@@ -36,3 +36,28 @@ class DataStore(private val context: Context) {
         }
     }
 }
+
+class WorkDatastore(private val context: Context){
+    companion object {
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("WorkState")
+    }
+
+    fun getBalance(balance: Preferences.Key<Boolean>): Flow<Boolean> {
+        val getValue: Flow<Boolean> = context.dataStore.data.mapNotNull { preferences ->
+            preferences[balance]
+        }
+        return getValue
+    }
+
+    suspend fun setFalse(balance: Preferences.Key<Boolean>) {
+        context.dataStore.edit { preference ->
+            preference[balance] = false
+        }
+    }
+
+    suspend fun setTrue(balance: Preferences.Key<Boolean>) {
+        context.dataStore.edit { preference ->
+            preference[balance] = true
+        }
+    }
+}

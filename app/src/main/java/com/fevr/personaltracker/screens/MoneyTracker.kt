@@ -447,7 +447,7 @@ fun DeleteAndSubmit(mutableState: MutableState<String>, click: () -> Unit) {
     Column(verticalArrangement = Arrangement.SpaceBetween) {
         ElevatedButton(
             onClick = {
-                if (mutableState.value.isNotEmpty()) {
+                if (mutableState.value.isNotEmpty() && mutableState.value != "0") {
                     mutableState.value = mutableState.value.dropLast(1) // Remove the last character
                 }
             },
