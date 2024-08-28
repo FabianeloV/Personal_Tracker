@@ -20,11 +20,7 @@ val Primary800 = Color(0xFF7E102D)
 
 // Semantic color verdesito
 
-val Success400 = Color(0xFFA7D346)
 val Success500 = Color(0xFF7EB714)
-val Success600 = Color(0xFF669D0E)
-val Success700 = Color(0xFF50830A)
-val Success800 = Color(0xFF3C6A06)
 
 // Semantic color azulito
 
@@ -36,8 +32,5 @@ val Info800 = Color(0xFF002865)
 
 // Semantic color amarillo
 
-val Warning400 = Color(0xFFF4C940)
 val Warning500 = Color(0xFFEDAF04)
-val Warning600 = Color(0xFFCB9002)
-val Warning700 = Color(0xFFAA7402)
-val Warning800 = Color(0xFF895901)
+

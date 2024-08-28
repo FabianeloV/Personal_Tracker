@@ -289,7 +289,7 @@ fun AddTransactionButton(click: () -> Unit) {
             onClick = { click() },
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(5.dp),
-            containerColor = Info700,
+            containerColor = Info600,
             contentColor = Color.White,
             modifier = Modifier.padding(end = 35.dp, bottom = 5.dp)
         ) {
