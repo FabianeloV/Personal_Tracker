@@ -334,7 +334,7 @@ fun WorkCounterCard(counter: MutableIntState, state:Boolean, click:()->Unit) {
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
-                    text = "Counter",
+                    text = "Contador",
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp,
                     color = Info400

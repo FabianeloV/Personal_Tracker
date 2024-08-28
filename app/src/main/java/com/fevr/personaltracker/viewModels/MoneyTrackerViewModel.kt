@@ -54,6 +54,14 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
         db.incomeDao().insertIncome(income)
     }
 
+    fun deleteLastIncome(income: Income, db: MoneyTrackerDatabase) = viewModelScope.launch {
+        db.incomeDao().deleteIncome(income)
+    }
+
+    fun deleteLastExpense(expense: Expense, db: MoneyTrackerDatabase) = viewModelScope.launch {
+        db.expenseDao().deleteExpense(expense)
+    }
+
     fun decreaseTotal(value:Float, context:Context) = viewModelScope.launch {
         DataStore(context).decrementCounter(value)
     }

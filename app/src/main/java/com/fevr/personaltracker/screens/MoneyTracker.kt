@@ -165,6 +165,15 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
         ) {
             // Sheet content
             TransactionKeyboard(viewModel, db, context, incomeOrExpenseState) {
+
+                if (expenses.count() > 14){
+                    viewModel.deleteLastExpense(expenses[0], db)
+                }
+
+                if (incomes.count() > 14){
+                    viewModel.deleteLastIncome(incomes[0], db)
+                }
+
                 showBottomSheet = false
             }
         }

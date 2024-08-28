@@ -165,9 +165,9 @@ fun InfoCard(value: MutableIntState) {
             text = {
                 Text(
                     text = when (value.intValue) {
-                        0 -> "Presione el switch de la parte superior derecha para alternar entre ingresos y egresos, presione el botón de la parte inferior izquierda para agregar un ingreso o egreso deprendiendo de la pantalla en la que se encuentre. Las listas de cada tipo de transacción se muestra en cada pantalla"
-                        1 -> "Presione el botón que se encuentra en la tarjeta de <<Contador>> para iniciar un nuevo split de trabajo. Los splits de trabajo que realice durante el día se muestran en la gráfica siguiente. Los splits de cada día se eliminan cada noche para dar paso a los del día siguiente"
-                        2 -> "Escriba en el cuadro de texto que actividad diaria le gustaría realizar constantemente. Puede agregar las tareas que desee. Las tareas que han sido marcadas, serán desmarcadas automáticamente cuando el día cambie para que puedan ser marcadas nuevamente"
+                        0 -> "Presione el switch de la parte superior derecha para alternar entre ingresos y egresos. Presione el botón de la parte inferior izquierda para agregar un ingreso o egreso dependiendo de la pantalla en la que se encuentre. Las listas de cada tipo de transacción se muestran en cada pantalla. Las listas se limpian automáticamente después de un tiempo"
+                        1 -> "Presione el botón que se encuentra en la tarjeta de <<Contador>> para iniciar un nuevo split de trabajo. Los splits de trabajo que realice durante el día se muestran en la gráfica siguiente. Los splits de cada día se eliminan cada noche para dar paso a los que se realicen el día siguiente"
+                        2 -> "Escriba en el cuadro de texto que actividad diaria le gustaría realizar constantemente. Puede agregar las tareas que desee. Las tareas que han sido marcadas serán desmarcadas automáticamente para que puedan ser marcadas nuevamente al siguiente día"
                         else -> ""
                     }
                 )
