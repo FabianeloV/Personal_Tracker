@@ -60,7 +60,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.floatPreferencesKey
 import com.fevr.personaltracker.viewModels.DataStore
 import com.fevr.personaltracker.ui.theme.Info400
 import com.fevr.personaltracker.ui.theme.Info500
@@ -90,8 +89,7 @@ fun MoneyTrackerScreen(viewModel: MoneyTrackerViewModel = MoneyTrackerViewModel(
     val incomeOrExpenseState = remember { mutableStateOf(true) }
 
     //Creamos el datastore del current balance con una clave unica
-    val balanceKey = floatPreferencesKey("balance_counter")
-    val balanceCounter = DataStore(context).getBalance(balanceKey).collectAsState(initial = 0.0f)
+    val balanceCounter = DataStore(context).getValue.collectAsState(initial = 0.0f)
 
     //Lista de gastos
     val db = viewModel.getDatabase(context)
@@ -227,7 +225,9 @@ fun BalanceCard(balance: Float, fontSize: Int, elevation: Int) {
             disabledContainerColor = Color.White,
             disabledContentColor = Purple40
         ),
-        modifier = Modifier.padding(top = 20.dp).widthIn(max = 215.dp)
+        modifier = Modifier
+            .padding(top = 20.dp)
+            .widthIn(max = 215.dp)
     ) {
         Text(
             text = "$%.02f".format(balance),
@@ -256,7 +256,8 @@ fun TransactionCard(text: String, value: Float, icon: ImageVector, color: Color)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth().padding(top = 5.dp, bottom = 5.dp),
+                .fillMaxWidth()
+                .padding(top = 5.dp, bottom = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {

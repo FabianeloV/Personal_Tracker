@@ -11,7 +11,6 @@ import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
@@ -56,11 +55,11 @@ class MoneyTrackerViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun decreaseTotal(value:Float, context:Context) = viewModelScope.launch {
-        DataStore(context).decrementCounter(floatPreferencesKey("balance_counter"), value)
+        DataStore(context).decrementCounter(value)
     }
 
     fun increaseTotal(value: Float, context: Context) = viewModelScope.launch {
-        DataStore(context).incrementCounter(floatPreferencesKey("balance_counter"), value)
+        DataStore(context).incrementCounter(value)
     }
 
     fun getIcon(type:String):ImageVector{
